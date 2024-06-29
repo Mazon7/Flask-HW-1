@@ -1,6 +1,8 @@
 from flask import Flask, request
 import uuid
 
+from model import calendar
+
 app = Flask(__name__)
 
 

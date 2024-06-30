@@ -1,5 +1,7 @@
-from model.calendar import Event, UUID
 from typing import List
+
+from model.calendar import Event
+import storage
 
 
 class DBException(Exception):
@@ -8,34 +10,34 @@ class DBException(Exception):
 
 class EventDB:
     def __init__(self):
-        self._event = 'storage object'
+        self._storage = storage.LocalStorage()
 
     def create(self, event: Event) -> str:
         try:
-            return ''  # create in storage
+            return self._storage.create(event)  # create in storage
         except Exception as ex:
             raise DBException(f"failed CREATE operation with: {ex}")
 
     def list(self) -> List[Event]:
         try:
-            return ''  # list in storage
+            return self._storage.list()  # list in storage
         except Exception as ex:
             raise DBException(f"failed LIST operation with: {ex}")
 
-    def read(self, _id: UUID) -> Event:
+    def read(self, _id: str) -> Event:
         try:
-            return ''  # read in storage by _id
+            return self._storage.read(_id)  # read in storage by _id
         except Exception as ex:
             raise DBException(f"failed READ operation with: {ex}")
 
-    def update(self, _id: UUID, event: Event):
+    def update(self, _id: str, event: Event):
         try:
-            return ''  # update in storage by _id
+            return self._storage.update(_id, event)  # update in storage by _id
         except Exception as ex:
             raise DBException(f"failed UPDATE operation with: {ex}")
 
-    def remove(self, _id: UUID):
+    def delete(self, _id: str):
         try:
-            return ''  # delete in storage by _id
+            return self._storage.delete(_id)  # delete in storage by _id
         except Exception as ex:
             raise DBException(f"failed DELETE operation with: {ex}")

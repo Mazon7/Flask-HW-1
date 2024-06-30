@@ -5,8 +5,7 @@ Requirements:
 — can not add more than one event per day
 '''
 from typing import List
-from datetime import datetime
-from model.calendar import Event, UUID
+from model.calendar import Event
 import db
 
 
@@ -20,10 +19,10 @@ class LogicException(Exception):
 
 class CalendarLogic:
     def __init__(self):
-        self._event_db = ''
+        self._event_db = db.EventDB()
 
     @staticmethod
-    def validate_event(event: Event):
+    def _validate_event(event: Event):
         if event is None:
             raise Exception('event is None')
         if event.title is None or (len(event.title) == 0 or len(event.title) > TITLE_LIMIT):
@@ -33,40 +32,52 @@ class CalendarLogic:
             raise Exception(
                 f'Text is not within a range of 0-{TEXT_LIMIT} symbols')
 
-    @staticmethod
-    def event_number_check(event: Event):
-        # TODO: update condition
-        if 'check that this date is already in the list of events':
-            raise Exception(f'Can not create event for {event.date}!')
+    # @staticmethod
+    def _event_number_check(self, event):
+        # TODO: update conditions
+        events = self._event_db.list()
+
+        # Do not consider event's date if you update it, so that user can update with the same date
+        for existed_event in events:
+            if existed_event.id == event.id:
+                events.remove(existed_event)
+                break
+
+        for existed_event in events:
+            if existed_event.date == event.date:
+                # if 'check that this date is already in the list of events':
+                raise Exception(f'Can not create event for {event.date}!')
 
     def create(self, event: Event) -> str:
-        self.validate_event(event)
+        self._validate_event(event)
+        self._event_number_check(event)
         try:
-            return ''  # create in db
+            return self._event_db.create(event)  # create in d
         except Exception as ex:
             raise LogicException(f"failed CREATE operation with: {ex}")
 
     def list(self) -> List[Event]:
         try:
-            return ''  # list in db
+            return self._event_db.list()  # list in db
         except Exception as ex:
             raise LogicException(f"failed LIST operation with: {ex}")
 
-    def read(self, _id: UUID) -> Event:
+    def read(self, _id: str) -> Event:
         try:
-            return ''  # read in db by _id
+            return self._event_db.read(_id)  # read in db by _id
         except Exception as ex:
             raise LogicException(f"failed READ operation with: {ex}")
 
-    def update(self, _id: UUID, event: Event):
-        self.validate_event(event)
+    def update(self, _id: str, event: Event):
+        self._validate_event(event)
+        self._event_number_check(event)
         try:
-            return ''  # update in db by _id
+            return self._event_db.update(_id, event)  # update in db by _id
         except Exception as ex:
             raise LogicException(f"failed UPDATE operation with: {ex}")
 
-    def remove(self, _id: UUID):
+    def delete(self, _id: str):
         try:
-            return ''  # delete in db by _id
+            return self._event_db.delete(_id)  # delete in db by _id
         except Exception as ex:
             raise LogicException(f"failed DELETE operation with: {ex}")
